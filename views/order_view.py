@@ -74,16 +74,51 @@ def get_single_order(pk):
                 o.id,
                 o.timestamp,
                 o.styleId,
+                st.style,
+                st.price style_price,
                 o.sizeId,
-                o.metalId
+                s.carets,
+                s.price size_price,
+                o.metalId,
+                m.metal,
+                m.price metal_price
             FROM Orders o
+            JOIN Styles st ON st.id = o.styleId
+            JOIN Sizes s ON s.id = o.sizeId
+            JOIN Metals m ON m.id = o.metalId
             WHERE o.id = ?
             ''',
             (pk,),
         )
+
         query_results = db_cursor.fetchone()
 
-    return json.dumps(dict(query_results)) if query_results else None
+        if query_results:
+            style = {
+                'style': query_results['style'],
+                'price': query_results['style_price'],
+            }
+            size = {
+                'carets': query_results['carets'],
+                'price': query_results['size_price'],
+            }
+            metal = {
+                'metal': query_results['metal'],
+                'price': query_results['metal_price'],
+            }
+            order = {
+                'id': query_results['id'],
+                'timestamp': query_results['timestamp'],
+                'styleId': query_results['styleId'],
+                'style': style,
+                'sizeId': query_results['sizeId'],
+                'size': size,
+                'metalId': query_results['metalId'],
+                'metal': metal,
+            }
+            return json.dumps(order)
+
+    return None
 
 
 def create_order(data):
