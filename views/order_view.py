@@ -94,3 +94,19 @@ def create_order(data):
         }
 
     return order_dict if order_dict else None
+
+
+def delete_order(pk):
+    with sqlite3.connect(database) as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        db_cursor.execute(
+            """
+            DELETE FROM Orders WHERE id = ?
+            """,
+            (pk,),
+        )
+        number_of_rows_deleted = db_cursor.rowcount
+
+    return True if number_of_rows_deleted > 0 else False
