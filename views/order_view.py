@@ -13,18 +13,50 @@ def get_all_orders():
             '''
             SELECT
                 o.id,
+                o.timestamp,
                 o.styleId,
+                st.style,
+                st.price style_price,
                 o.sizeId,
+                s.carets,
+                s.price size_price,
                 o.metalId,
-                o.typeId
+                m.metal,
+                m.price metal_price
             FROM Orders o
+            JOIN Styles st ON st.id = o.styleId
+            JOIN Sizes s ON s.id = o.sizeId
+            JOIN Metals m ON m.id = o.metalId;
             '''
         )
         query_results = db_cursor.fetchall()
 
         orders = []
+
         for row in query_results:
-            orders.append(dict(row))
+            style = {
+                'style': row['style'],
+                'price': row['style_price'],
+            }
+            size = {
+                'carets': row['carets'],
+                'price': row['size_price'],
+            }
+            metal = {
+                'metal': row['metal'],
+                'price': row['metal_price'],
+            }
+            order = {
+                'id': row['id'],
+                'timestamp': row['timestamp'],
+                'styleId': row['styleId'],
+                'style': style,
+                'sizeId': row['sizeId'],
+                'size': size,
+                'metalId': row['metalId'],
+                'metal': metal,
+            }
+            orders.append(order)
 
         ser_order = json.dumps(orders)
 
@@ -40,10 +72,10 @@ def get_single_order(pk):
             '''
             SELECT
                 o.id,
+                o.timestamp,
                 o.styleId,
                 o.sizeId,
-                o.metalId,
-                o.typeId
+                o.metalId
             FROM Orders o
             WHERE o.id = ?
             ''',
@@ -61,10 +93,10 @@ def create_order(data):
         db_cursor.execute(
             '''
             INSERT INTO Orders
-            (styleId, sizeId, metalId, typeId)
+            (timestamp, styleId, sizeId, metalId)
             VALUES (?, ?, ?, ?)
             ''',
-            (data['styleId'], data['sizeId'], data['metalId'], data['typeId']),
+            (data['timestamp'], data['styleId'], data['sizeId'], data['metalId']),
         )
 
         order_id = db_cursor.lastrowid
@@ -74,10 +106,10 @@ def create_order(data):
             '''
             SELECT
                 o.id,
+                o.timestamp,
                 o.styleId,
                 o.sizeId,
-                o.metalId,
-                o.typeId
+                o.metalId
             FROM Orders o
             WHERE o.id = ?
             ''',
@@ -87,10 +119,10 @@ def create_order(data):
 
         order_dict = {
             'id': new_order[0],
-            'styleId': new_order[1],
-            'sizeId': new_order[2],
-            'metalId': new_order[3],
-            'typeId': new_order[4],
+            'timestamp': new_order[1],
+            'styleId': new_order[2],
+            'sizeId': new_order[3],
+            'metalId': new_order[4],
         }
 
     return order_dict if order_dict else None
