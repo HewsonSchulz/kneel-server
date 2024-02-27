@@ -19,36 +19,36 @@ class HandleRequests(BaseHTTPRequestHandler):
         self.wfile.write(body.encode())
 
     def parse_url(self, path):
-        """Parse the url into the resource and id"""
+        '''Parse the url into the resource and id'''
         parsed_url = urlparse(path)
-        path_params = parsed_url.path.split("/")
+        path_params = parsed_url.path.split('/')
         resource = path_params[1]
 
-        url_dictionary = {"requested_resource": resource, "query_params": {}, "pk": 0}
+        url_dictionary = {'requested_resource': resource, 'query_params': {}, 'pk': 0}
 
         if parsed_url.query:
             query = parse_qs(parsed_url.query)
-            url_dictionary["query_params"] = query
+            url_dictionary['query_params'] = query
 
         try:
             pk = int(path_params[2])
-            url_dictionary["pk"] = pk
+            url_dictionary['pk'] = pk
         except (IndexError, ValueError):
-            pass
+            pass  #!
 
         return url_dictionary
 
     def set_response_code(self, status):
         self.send_response(status)
-        self.send_header("Content-type", "application/json")
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
 
     def do_OPTIONS(self):
         self.send_response(200)
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
         self.send_header(
-            "Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Accept"
+            'Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept'
         )
         self.end_headers()
