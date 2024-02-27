@@ -1,7 +1,13 @@
 import json
 from http.server import HTTPServer
-from nss_handler import HandleRequests, status
-from views import get_all_orders, get_single_order, create_order, delete_order
+from request_handler import HandleRequests, status
+from views import (
+    get_all_orders,
+    get_single_order,
+    create_order,
+    delete_order,
+    update_metal,
+)
 
 
 class JSONServer(HandleRequests):
@@ -77,6 +83,28 @@ class JSONServer(HandleRequests):
             return self.response(
                 "", status.HTTP_404_CLIENT_ERROR_RESOURCE_NOT_FOUND.value
             )
+
+    def do_PUT(self):
+        """Handle PUT requests from a client"""
+
+        url = self.parse_url(self.path)
+        pk = url["pk"]
+
+        if url["requested_resource"] == "metals":
+            content_len = int(self.headers.get("content-length", 0))
+            request_body = self.rfile.read(content_len)
+            request_body = json.loads(request_body)
+            if pk != 0:
+                successfully_updated = update_metal(pk, request_body)
+                if successfully_updated:
+                    return self.response(
+                        "", status.HTTP_204_SUCCESS_NO_RESPONSE_BODY.value
+                    )
+
+        return self.response(
+            "",
+            status.HTTP_404_CLIENT_ERROR_RESOURCE_NOT_FOUND.value,
+        )
 
 
 def main():
